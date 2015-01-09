@@ -9,4 +9,4 @@ Easy setup (on unix):
 4. Set up a cron job that runs <code>huebro.pl check</code> periodically (once every minute seems ok).
 5. Make some changes to your lights, and keep an eye on the <code>~/.huebro/huebro.log</code> file to see what's happening.
 
-If you run into problems, use the <code>-v</code> and <code>-d</code options, and try the <code>huebro.pl current</code> command to see what's going on. If you still can't figure it out, it's time to start reading the code.
+If you run into problems, use the <code>-v</code> and <code>-d</code> options, and try the <code>huebro.pl current</code> command to see what's going on. If you still can't figure it out, it's time to start reading the code.
