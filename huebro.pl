@@ -25,7 +25,7 @@
 # How many lights must be in the default state before we assume a power failure happened?
 # Keep in mind this only works with lights of the type "Extended color light". You can check
 # this using this script's 'current' command.
-use constant MAGIC_NUMBER => 3;
+use constant MAGIC_NUMBER => 1;
 
 # URL for the local bridge. If the script runs slowly, use the IP address instead of hostname.
 use constant BRIDGE => 'http://192.168.2.16';
@@ -62,8 +62,8 @@ Usage: huebro.pl [-d] <command>
 
 Commands:
 
-    auth      - Push the link button on the bridge, then run this command to authenticate the application.
-    unauth    - Un-authenticate this application from the bridge.
+    reg       - Push the link button on the bridge, then run this command to register the application.
+    unreg     - Un-register this application from the bridge.
     check     - Check and log the light states, determining if a power failure has occurred, reverting
                 the lights to a previous state if nevessary. Run this at suitable intervals using cron or
                 some other form of scheduler.
@@ -120,13 +120,13 @@ if ($ARGV[0] eq 'check')
 {
 	command_check();
 }
-elsif ($ARGV[0] eq 'auth')
+elsif ($ARGV[0] eq 'reg')
 {
-	command_auth();
+	reg();
 }
-elsif ($ARGV[0] eq 'unauth')
+elsif ($ARGV[0] eq 'unreg')
 {
-	command_unauth();
+	command_unreg();
 }
 elsif ($ARGV[0] eq 'current')
 {
@@ -203,34 +203,34 @@ sub command_check
 	$dbh->commit or die $dbh->errstr;
 }
 
-sub command_auth
+sub command_reg
 {
 	my ($code, $json) = post(BRIDGE . '/api', {devicetype => "Hue#Bro", username => KEY});
 
 	if (defined $json->[0]{error})
 	{
-		logthis("Authorization attempt by bridge %s failed: %s", BRIDGE, $json->[0]{error}{description});
+		logthis("Registration attempt on bridge %s failed: %s", BRIDGE, $json->[0]{error}{description});
 	}
 	else
 	{
-		logthis("Successfully authorized by bridge %s.", BRIDGE);
+		logthis("Successfully registered with bridge %s.", BRIDGE);
 	}
 
 	print Dumper($json) if $DEBUG;
 }
 
 
-sub command_unauth
+sub command_unreg
 {
 	my ($code, $json) = post(sprintf('%s/api/%s/config/whitelist/%s', BRIDGE, KEY, KEY), {}, 'DELETE');
 
 	if (defined $json->[0]{error})
 	{
-		logthis("Unauthorization attempt from bridge %s failed: %s", BRIDGE, $json->[0]{error}{description});
+		logthis("Unregistration attempt from bridge %s failed: %s", BRIDGE, $json->[0]{error}{description});
 	}
 	else
 	{
-		logthis("Unauthorized from bridge %s.\n", BRIDGE);
+		logthis("Unregistered with bridge %s.\n", BRIDGE);
 	}
 
 	print Dumper($json) if $DEBUG;
