@@ -62,14 +62,18 @@ Usage: huebro.pl [-d] <command>
 
 Commands:
 
-    reg       - Push the link button on the bridge, then run this command to register the application.
+    reg       - Push the link button on the bridge, then run this command to
+                register the application.
     unreg     - Un-register this application from the bridge.
-    check     - Check and log the light states, determining if a power failure has occurred, reverting
-                the lights to a previous state if nevessary. Run this at suitable intervals using cron or
-                some other form of scheduler.
+    check     - Check and log the light states, determining if a power failure
+                has occurred, reverting the lights to a previous state if
+                necessary. Run this at suitable intervals using cron or some
+                other form of scheduler.
     current   - Show the current state of all lights, according to the bridge.
-    previous  - Show the previous state of all lights, according to the database.
-    lookup    - Prints a lookup table containing light id and name, suitable for use with Splunk, etc.
+    previous  - Show the previous state of all lights, according to the
+                database.
+    lookup    - Prints a lookup table containing light id and name, suitable
+                for use with Splunk, etc.
     version   - Show the program version.
 
 };
