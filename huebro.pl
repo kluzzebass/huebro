@@ -69,6 +69,7 @@ Commands:
                 some other form of scheduler.
     current   - Show the current state of all lights, according to the bridge.
     previous  - Show the previous state of all lights, according to the database.
+    lookup    - Prints a lookup table containing light id and name, suitable for use with Splunk, etc.
     version   - Show the program version.
 
 };
@@ -135,6 +136,10 @@ elsif ($ARGV[0] eq 'current')
 elsif ($ARGV[0] eq 'previous')
 {
 	command_previous();
+}
+elsif ($ARGV[0] eq 'lookup')
+{
+	command_lookup();
 }
 elsif ($ARGV[0] eq 'version')
 {
@@ -305,6 +310,30 @@ sub command_previous
 			$l->{state}{effect},
 			$l->{state}{alert}
 		);
+	}
+}
+
+sub command_lookup
+{
+	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, KEY));
+
+	if (ref($json) eq 'ARRAY' and defined $json->[0]{error})
+	{
+		print Dumper($json) if $DEBUG;
+		printf("Fetching light info from bridge %s failed: %s", BRIDGE, $json->[0]{error}{description});
+
+		return;
+	}
+
+	my $lights = parse_lights($json);
+
+	print "id,name\n";
+
+	foreach my $uid (sort { $lights->{$a} <=> $lights->{$b} } keys %{$lights})
+	{
+		my $l = $lights->{$uid};
+
+		print $l->{id} . "," . $l->{name} . "\n";
 	}
 }
 
