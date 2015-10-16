@@ -174,7 +174,7 @@ sub command_check
 
 	# Do we need to restore a previous state?
 	my $needs_restore = check_lights($curr_lights);
-	logthis("Magic number of lights in default state has been reached; state restoration required.") if $needs_restore;
+	logthis("Magic number of lights in default state has been reached (%d); state restoration required.", MAGIC_NUMBER) if $needs_restore;
 
 	# Grab a snapshot of the previous lights and states
 	my $prev_lights = previous_lights();
