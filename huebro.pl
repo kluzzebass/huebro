@@ -38,7 +38,7 @@ use constant HOMEDIR => "$ENV{HOME}/.huebro";
 
 
 # You probably don't need to change these
-use constant KEY => 'huebrohuebro';
+use constant KEYFILE => 'huebro.key';
 use constant DBFILE => "huebro.db";
 use constant LOGFILE => "huebro.log";
 
@@ -99,10 +99,14 @@ die "Unable to create directory " . HOMEDIR . ": $!\n" unless -d HOMEDIR;
 
 # Open the log file
 my $lf = HOMEDIR . '/' . LOGFILE;
-open(LOG, '>>:utf8', $lf) or die "Unable to open log file " . $lf . ": $!\n";
+open(LOG, '>>:utf8', $lf)
+	or die "Unable to open log file " . $lf . ": $!\n";
 
 # Unicode output
- binmode(STDOUT, ":utf8");
+binmode(STDOUT, ":utf8");
+
+# Read the API key, if possible.
+my $KEY = read_key();
 
 # Set up the user agent
 my $ua = LWP::UserAgent->new;
@@ -127,7 +131,7 @@ if ($ARGV[0] eq 'check')
 }
 elsif ($ARGV[0] eq 'reg')
 {
-	reg();
+	command_reg();
 }
 elsif ($ARGV[0] eq 'unreg')
 {
@@ -155,11 +159,40 @@ else
 }
 
 
+sub read_key
+{
+	open(my $fh, "<", HOMEDIR . "/" . KEYFILE)
+		or return undef;
+	my $key = <$fh>;
+	$key =~ s/[\r\n]+//g;
+	$key;
+}
+
+sub write_key
+{
+	my $key = shift;
+	
+	open(my $fh, ">", HOMEDIR . "/" . KEYFILE)
+		or die "Unable to open key file for writing: $!\n";
+	print $fh "$key\n";
+	close($fh);
+}
+
+sub check_key
+{
+	unless (defined $KEY)
+	{
+		logthis("No API key found! Use the 'reg' command to register with the bridge.");
+		exit 1;
+	}
+}
 
 
 sub command_check
 {
-	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, KEY));
+	check_key();
+
+	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, $KEY));
 
 	if (ref($json) eq 'ARRAY' and defined $json->[0]{error})
 	{
@@ -214,7 +247,7 @@ sub command_check
 
 sub command_reg
 {
-	my ($code, $json) = post(BRIDGE . '/api', {devicetype => "Hue#Bro", username => KEY});
+	my ($code, $json) = post(BRIDGE . '/api', {devicetype => "Hue#Bro"});
 
 	if (defined $json->[0]{error})
 	{
@@ -222,6 +255,7 @@ sub command_reg
 	}
 	else
 	{
+		write_key($json->[0]{success}{username});
 		logthis("Successfully registered with bridge %s.", BRIDGE);
 	}
 
@@ -231,7 +265,9 @@ sub command_reg
 
 sub command_unreg
 {
-	my ($code, $json) = post(sprintf('%s/api/%s/config/whitelist/%s', BRIDGE, KEY, KEY), {}, 'DELETE');
+	check_key();
+	
+	my ($code, $json) = post(sprintf('%s/api/%s/config/whitelist/%s', BRIDGE, $KEY, $KEY), {}, 'DELETE');
 
 	if (defined $json->[0]{error})
 	{
@@ -248,7 +284,9 @@ sub command_unreg
 
 sub command_current
 {
-	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, KEY));
+	check_key();
+	
+	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, $KEY));
 
 	if (ref($json) eq 'ARRAY' and defined $json->[0]{error})
 	{
@@ -319,7 +357,9 @@ sub command_previous
 
 sub command_lookup
 {
-	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, KEY));
+	check_key();
+	
+	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, $KEY));
 
 	if (ref($json) eq 'ARRAY' and defined $json->[0]{error})
 	{
@@ -372,6 +412,8 @@ sub command_version
 
 sub restore_lights
 {
+	check_key();
+	
 	my $curr = shift;
 	my $prev = shift;
 
@@ -455,7 +497,7 @@ sub restore_lights
 		# Only make a state change if there's actually anything that needs changing
 		if (scalar keys %{$cmd})
 		{
-			my ($code, $json) = post(sprintf("%s/api/%s/lights/%d/state", BRIDGE, KEY, $c->{id}), $cmd, "PUT");
+			my ($code, $json) = post(sprintf("%s/api/%s/lights/%d/state", BRIDGE, $KEY, $c->{id}), $cmd, "PUT");
 
 			if (defined $json->[0]{error})
 			{
