@@ -24,6 +24,6 @@ The following perl modules are needed by huebro:
 
 If you're on Debian (or Ubuntu, or Raspbian) you can install these by running the following command:
 
-{{sudo apt-get install libwww-perl libjson-perl libdbi-perl libdbd-sqlite3-perl}}
+`sudo apt-get install libwww-perl libjson-perl libdbi-perl libdbd-sqlite3-perl`
 
 
