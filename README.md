@@ -11,3 +11,19 @@ Easy setup (on unix):
 6. Make some changes to your lights, and keep an eye on the `~/.huebro/huebro.log` file to see what's happening.
 
 If you run into problems, use the `-v` and `-d` options, and try the `huebro.pl current` command to see what's going on. If you still can't figure it out, it's time to start reading the code.
+
+
+## Dependencies
+
+The following perl modules are needed by huebro:
+
+* DBI
+* DBD::SQLite
+* LWP::UserAgent
+* JSON
+
+If you're on Debian (or Ubuntu, or Raspbian) you can install these by running the following command:
+
+{{sudo apt-get install libwww-perl libjson-perl libdbi-perl libdbd-sqlite3-perl}}
+
+
