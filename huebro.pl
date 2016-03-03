@@ -192,6 +192,7 @@ sub command_check
 {
 	check_key();
 
+	logthis("Attempting to fetch light info from bridge %s...", BRIDGE);
 	my ($code, $json) = get(sprintf("%s/api/%s/lights", BRIDGE, $KEY));
 
 	if (ref($json) eq 'ARRAY' and defined $json->[0]{error})
@@ -201,6 +202,7 @@ sub command_check
 
 		return;
 	}
+	logthis("Done.");
 
 	my $curr_lights = parse_lights($json);
 	print Dumper($curr_lights) if $DEBUG;
@@ -243,6 +245,9 @@ sub command_check
 
 	# Commit the work
 	$dbh->commit or die $dbh->errstr;
+
+	logthis("No changes since last check.") unless $new_lights or $needs_restore;
+
 }
 
 sub command_reg
