@@ -49,7 +49,7 @@ use constant DEF_CT => 369;
 use constant DEF_BRI => 254;
 
 # Current version
-use constant VERSION => "1.1.0";
+use constant VERSION => "1.1.1";
 
 # Just grab a time stamp
 use constant TIME => time;
