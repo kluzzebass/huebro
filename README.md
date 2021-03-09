@@ -1,3 +1,5 @@
+# Note! This script is now deprecated, as all Hue bulbs can be configured to restore their previous settings on power on.
+
 # huebro
 Perl script for automatically handling/restoring Philips Hue bulbs after returning from a power failure.
 
